@@ -1,6 +1,7 @@
 #include <iostream>
 #include <cstring>
-//#include <ctime>
+#include <cassert>
+
 class MyNotList
 {
 
@@ -12,6 +13,7 @@ public:
 	int pop_back();
 	int pop_front();
 	void prin();
+	bool is_empty();
 private:	
 	int* dataset;
 	int size;
@@ -58,8 +60,8 @@ protected:
 	}
 	int MyNotList::pop_front()
 	{
-		if (size == 0) return -1;
-		else if (size == 1)
+		assert(size > 0);
+		if (size == 1)
 		{
 			size--;
 			return dataset[tail];
@@ -110,8 +112,8 @@ protected:
 	}
 	int MyNotList::pop_back()
 	{
-		if (size == 0) return -1;
-		else if (size == 1)
+		assert(size > 0);
+		if (size == 1)
 		{
 			size--;
 			return dataset[tail];
@@ -126,7 +128,10 @@ protected:
 			return value;
 		}
 	}
-
+	bool MyNotList::is_empty()
+	{
+		return !size;
+	}
 int main() {
 
 	MyNotList q;
@@ -145,16 +150,24 @@ int main() {
 			q.push_front(value);
 			break;
 		case 2:
+			if (q.is_empty())
+			{
+				if (value != -1) res = 0;
+			} else
 			if (q.pop_front() != value) res = 0;
 			break;
 		case 3:
 			q.push_back(value);
 			break;
 		case 4:
+			if (q.is_empty())
+			{
+				if (value != -1) res = 0;
+			}
+			else
 			if (q.pop_back() != value) res = 0;
 			break;
 		default:
-			//res = 0;
 			break;
 		}
 	}
