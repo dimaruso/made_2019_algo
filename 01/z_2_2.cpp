@@ -3,22 +3,27 @@ class MinHeap
 {
 public:
 	MinHeap(int _l);
-	~MinHeap();
+	~MinHeap();	
+	int TakeMin();
+	void Add(int element);
+	int len();
+private:
+	int* arr;
+	int l;
 	void SiftUp(int i);
 	void SiftDown(int i);
 	void BuildHeap();
-	void HeapSort();
-	int TakeMin();
-	void Add(int element);
-	int l;
-private:
-	int* arr;
 };
 
 MinHeap::MinHeap(int _l):
-	l(0),
+	l(_l),
 	arr(new int[_l])
 {
+	for (int i = 0; i < l; i++)
+	{
+		std::cin >> arr[i];
+	}
+	BuildHeap();
 }
 
 MinHeap::~MinHeap()
@@ -79,20 +84,15 @@ void MinHeap::BuildHeap() {
 	}
 }
 
+int MinHeap::len()
+{
+	return l;
+}
+
 void MinHeap::Add(int element) {
 	arr[l] = element;
 	l++;
 	SiftUp(l-1);
-}
-
-void MinHeap::HeapSort() {
-	int heapSize = l;
-	BuildHeap();
-	while (heapSize > 1) {
-		std::swap(arr[0], arr[heapSize - 1]);
-		--heapSize;
-		SiftDown(0);
-	}
 }
 
 int MinHeap::TakeMin() {
@@ -117,20 +117,13 @@ int main()
 	std::cin >> n;
 	MinHeap a(n);
 
-	int t;
-	for (int i = 0; i < n; i++)
-	{
-		std::cin >> t;
-		a.Add(t);
-	}
-
 	int sum = 0;
 	if(n>1)
-		for (;a.l > 1;)
+		for (int t; a.len() > 1;)
 		{
 			t = a.TakeMin()+a.TakeMin();
 			sum += t;
-			if(a.l > 0) a.Add(t);
+			if(a.len() > 0) a.Add(t);
 		}
 	std::cout << sum << std::endl;
 	//a.~MinHeap();
