@@ -7,26 +7,25 @@ public:
 	Treap();
 	~Treap();
 	struct Node;
-	void Insert(int value);
-	void DeleteNode(int value);
-	Node* Find(int const value);
-	int FindCount(int const value);
-	Node* FindMin(int const value);
-	void DFS();
+	void Insert(int const value);
+	void DeleteNode(int const value);
+	Node* Find(int const value)const;
+	int FindCount(int const value)const;
+	Node* FindMin(int const value)const;
+	void DFS()const;
 private:
 	Node* Root;
 	void Split(Node* node, int key,
 		Node*& left, Node*& right);
 	Node* Merge(Node* left, Node* right);
 	bool UpdateCount(Node* locRoot, int const value, int const dlt);
-	void DFSN(Node* node);
+	void DFSN(Node* node)const;
 };
 
 struct Treap::Node
 {
 	Node(int _k, int _p);
 	~Node();
-
 	size_t Count;
 	int Key;
 	int Priority;
@@ -148,7 +147,7 @@ bool Treap::UpdateCount(Node* locRoot, int const value, int const dlt)
 	}
 }
 
-void Treap::Insert(int value)
+void Treap::Insert(int const value)
 {
 	int pr = 512;
 	if (Root)
@@ -167,7 +166,7 @@ void Treap::Insert(int value)
 	}
 }
 
-void Treap::DeleteNode(int value)
+void Treap::DeleteNode(int const value)
 {
 	
 	if (UpdateCount(Root, value, -1))
@@ -216,7 +215,7 @@ void Treap::DeleteNode(int value)
 	}
 }
 
-Treap::Node* Treap::Find(int const value)
+Treap::Node* Treap::Find(int const value)const
 {
 	Node* last = Root;
 	while (value != last->Key && (last->Left || last->Right))
@@ -231,7 +230,7 @@ Treap::Node* Treap::Find(int const value)
 	else
 		return nullptr;
 }
-int Treap::FindCount(int const value)
+int Treap::FindCount(int const value)const
 {
 	Node* last = Root;
 	size_t cur = value;
@@ -260,7 +259,7 @@ int Treap::FindCount(int const value)
 	return last->Key;
 }
 
-Treap::Node* Treap::FindMin(int const value)
+Treap::Node* Treap::FindMin(int const value)const
 {
 	Node* cur = Root;
 	while (cur->Left != nullptr)
@@ -268,13 +267,13 @@ Treap::Node* Treap::FindMin(int const value)
 	return cur;
 }
 
-void Treap::DFS()
+void Treap::DFS()const
 {
 	DFSN(Root);
 	std::cout << std::endl;
 	return;
 }
-void Treap::DFSN(Node* node)
+void Treap::DFSN(Node* node)const
 {
 	if (!node) return;
 	DFSN(node->Left);
