@@ -7,21 +7,19 @@ public:
 	Treap();
 	~Treap();
 	struct Node;
-	void Split(Node* node, int key,
-		Node*& left, Node*& right);
-	Node* Merge(Node* left, Node* right);
 	void Insert(int value);
 	void DeleteNode(int value);
-
 	Node* Find(int const value);
 	int FindCount(int const value);
 	Node* FindMin(int const value);
 	void DFS();
 private:
 	Node* Root;
+	void Split(Node* node, int key,
+		Node*& left, Node*& right);
+	Node* Merge(Node* left, Node* right);
 	bool UpdateCount(Node* locRoot, int const value, int const dlt);
 	void DFSN(Node* node);
-
 };
 
 struct Treap::Node
@@ -251,7 +249,7 @@ int Treap::FindCount(int const value)
 			last = last->Right;
 			cur -= (1+lcount);
 		}
-    //error case
+    		//error case
 		else return -1;
 
 		lcount = 0;
@@ -304,10 +302,8 @@ int main()
 			MyTreap.DeleteNode(-num);
 
 		std::cout << MyTreap.FindCount(k+1) << std::endl;
-
 		//MyTreap.DFS();
 	}
-	
 	system("pause");
 	return 0;
 }
