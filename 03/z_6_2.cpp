@@ -7,13 +7,13 @@ public:
 	~BinTree();
 	struct Node;
 	void Insert(const int value);
-	Node* Find(int const value);
-	Node* FindMin(int const value);
-	void DFS();
+	Node* Find(int const value) const;
+	Node* FindMin(int const value) const;
+	void DFS() const;
 private:
 	size_t Count;
 	Node* Root;
-	void DFSN(Node* node);
+	void DFSN(Node* node) const;
 };
 
 struct BinTree::Node
@@ -95,7 +95,7 @@ void BinTree::Insert(const int value)
 	}
 }
 
-BinTree::Node* BinTree::Find(int const value)
+BinTree::Node* BinTree::Find(int const value) const
 {
 	Node* last = Root;
 	while (value != last->Key && (last->Left || last->Right))
@@ -108,7 +108,7 @@ BinTree::Node* BinTree::Find(int const value)
 	return last;
 }
 
-BinTree::Node* BinTree::FindMin(int const value)
+BinTree::Node* BinTree::FindMin(int const value) const
 {
 	Node* cur = Root;
 	if (cur)
@@ -117,13 +117,13 @@ BinTree::Node* BinTree::FindMin(int const value)
 	return cur;
 }
 
-void BinTree::DFS()
+void BinTree::DFS() const
 {
 	DFSN(Root);
 	return;
 }
 
-void BinTree::DFSN(Node* node)
+void BinTree::DFSN(Node* node) const
 {
 	
 	std::stack<Node*> s;
