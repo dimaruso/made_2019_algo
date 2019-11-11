@@ -6,7 +6,6 @@ class Treap
 public:
 	Treap();
 	~Treap();
-	struct Node;
 	void Insert(int const value);
 	void DeleteNode(int const value);
 	int FindCount(int const value)const;
@@ -14,6 +13,7 @@ public:
 	int FindMin()const;
 	void DFS(void(*TakeValue)(const int value))const;
 private:
+	struct Node;
 	Node* Root;
 	void Split(Node* node, int key,
 		Node*& left, Node*& right);
