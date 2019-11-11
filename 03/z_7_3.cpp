@@ -9,17 +9,19 @@ public:
 	struct Node;
 	void Insert(int const value);
 	void DeleteNode(int const value);
-	Node* Find(int const value)const;
 	int FindCount(int const value)const;
-	Node* FindMin(int const value)const;
-	void DFS()const;
+    bool Find(int const value)const;
+	int FindMin()const;
+	void DFS(void(*TakeValue)(const int value))const;
 private:
 	Node* Root;
 	void Split(Node* node, int key,
 		Node*& left, Node*& right);
 	Node* Merge(Node* left, Node* right);
 	bool UpdateCount(Node* locRoot, int const value, int const dlt);
-	void DFSN(Node* node)const;
+	Node* FindN(int const value)const;
+	Node* FindMinN()const;
+	void DFSN(Node* node, void(*TakeValue)(const int value))const;
 };
 
 struct Treap::Node
@@ -55,7 +57,6 @@ Treap::Node::~Node()
 {
 }
 
-// Разрезание декартового дерева по ключу.
 void Treap::Split(Node* node, int key,
 	Node*& left, Node*& right)
 {
@@ -81,7 +82,6 @@ void Treap::Split(Node* node, int key,
 			node->Count += node->Right->Count;
 }
 
-// Слияние двух декартовых деревьев.
 Treap::Node* Treap::Merge(Node* left, Node* right)
 {
 	if (!left || !right)
@@ -168,7 +168,7 @@ void Treap::Insert(int const value)
 
 void Treap::DeleteNode(int const value)
 {
-	
+
 	if (UpdateCount(Root, value, -1))
 	{
 
@@ -204,7 +204,7 @@ void Treap::DeleteNode(int const value)
 			}
 		}
 		/////////////////////////////
-		
+
 		if (cur->Key == value)
 		{
 			if (last->Left == cur)
@@ -215,7 +215,7 @@ void Treap::DeleteNode(int const value)
 	}
 }
 
-Treap::Node* Treap::Find(int const value)const
+Treap::Node* Treap::FindN(int const value)const
 {
 	Node* last = Root;
 	while (value != last->Key && (last->Left || last->Right))
@@ -225,11 +225,12 @@ Treap::Node* Treap::Find(int const value)const
 		else if (value > last->Key)
 			last = last->Right;
 	}
-	if (value == last->Key)
+	if (last->Key == value)
 		return last;
 	else
 		return nullptr;
 }
+
 int Treap::FindCount(int const value)const
 {
 	Node* last = Root;
@@ -259,26 +260,46 @@ int Treap::FindCount(int const value)const
 	return last->Key;
 }
 
-Treap::Node* Treap::FindMin(int const value)const
+bool Treap::Find(int const value)const
+{
+	Node* last = FindN(value);
+	return (last && last->Key == value);
+}
+
+
+Treap::Node* Treap::FindMinN()const
 {
 	Node* cur = Root;
+	if (cur)
 	while (cur->Left != nullptr)
 		cur = cur->Left;
 	return cur;
 }
 
-void Treap::DFS()const
+int Treap::FindMin()const
 {
-	DFSN(Root);
+	Node* cur = FindMinN();
+	if (cur)
+		return cur->Key;
+	else
+	{
+		throw std::out_of_range("Tree is empty");
+		return -1;
+	}
+}
+
+void Treap::DFS( void(*TakeValue)(const int value))const
+{
+	DFSN(Root, TakeValue);
 	std::cout << std::endl;
 	return;
 }
-void Treap::DFSN(Node* node)const
+void Treap::DFSN(Node* node, void(*TakeValue)(const int value))const
 {
 	if (!node) return;
-	DFSN(node->Left);
-	std::cout << node->Key << " ";
-	DFSN(node->Right);
+	DFSN(node->Left,TakeValue);
+	TakeValue(node->Key);
+	DFSN(node->Right,TakeValue);
 	return;
 }
 
@@ -294,14 +315,11 @@ int main()
 	for (size_t i = 0; i < n; ++i)
 	{
 		std::cin >> num >> k;
-
 		if (num > 0)
 			MyTreap.Insert(num);
 		else if (num < 0)
 			MyTreap.DeleteNode(-num);
-
 		std::cout << MyTreap.FindCount(k+1) << std::endl;
-		//MyTreap.DFS();
 	}
 	system("pause");
 	return 0;
