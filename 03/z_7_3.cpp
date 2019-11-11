@@ -9,7 +9,7 @@ public:
 	void Insert(int const value);
 	void DeleteNode(int const value);
 	int FindCount(int const value)const;
-    bool Find(int const value)const;
+	bool Find(int const value)const;
 	int FindMin()const;
 	void DFS(void(*TakeValue)(const int value))const;
 private:
@@ -18,7 +18,6 @@ private:
 	void Split(Node* node, int key,
 		Node*& left, Node*& right);
 	Node* Merge(Node* left, Node* right);
-	bool UpdateCount(Node* locRoot, int const value, int const dlt);
 	Node* FindN(int const value)const;
 	Node* FindMinN()const;
 	void DFSN(Node* node, void(*TakeValue)(const int value))const;
@@ -60,7 +59,7 @@ Treap::Node::~Node()
 void Treap::Split(Node* node, int key,
 	Node*& left, Node*& right)
 {
-	if (node == nullptr) 
+	if (node == nullptr)
 	{
 		left = right = nullptr;
 		return;
@@ -73,25 +72,24 @@ void Treap::Split(Node* node, int key,
 	else {
 		Split(node->Left, key,
 			left, node->Left);
-		right = node;		
+		right = node;
 	}
 	node->Count = 1;
-		if (node->Left)
-			node->Count += node->Left->Count;
-		if (node->Right)
-			node->Count += node->Right->Count;
+	if (node->Left)
+		node->Count += node->Left->Count;
+	if (node->Right)
+		node->Count += node->Right->Count;
 }
 
 Treap::Node* Treap::Merge(Node* left, Node* right)
 {
 	if (!left || !right)
 		return left == 0 ? right : left;
-
 	Node* localRoot = left->Priority > right->Priority ? left : right;
 	Node* tmp;
-	while (left && right) 
+	while (left && right)
 	{
-		if (left->Priority > right->Priority) 
+		if (left->Priority > right->Priority)
 		{
 			while (left->Right && left->Right->Priority > right->Priority)
 			{
@@ -103,7 +101,7 @@ Treap::Node* Treap::Merge(Node* left, Node* right)
 			left->Right = right;
 			left = tmp;
 		}
-		else 
+		else
 		{
 			while (right->Left && right->Left->Priority >= left->Priority)
 			{
@@ -119,99 +117,93 @@ Treap::Node* Treap::Merge(Node* left, Node* right)
 	return localRoot;
 }
 
-bool Treap::UpdateCount(Node* locRoot, int const value, int const dlt)
-{
-	Node* last = locRoot;
-	if (!last) return false;
-	while (value != last->Key && (last->Left || last->Right))
-	{
-		last->Count += dlt;
-
-		if (value < last->Key)
-			last = last->Left;
-		else if (value > last->Key)
-			last = last->Right;
-	}
-	if (value == last->Key)
-	{
-		last->Count = 1;
-		if (last->Left)
-			last->Count += last->Left->Count;
-		if (last->Right)
-			last->Count += last->Right->Count;
-		return true;
-	}
-	else
-	{
-		return false;
-	}
-}
-
 void Treap::Insert(int const value)
 {
 	int pr = 512;
 	if (Root)
 	{
-		Node* l;
-		Node* r;
-		Split(Root, value, l, r);
-		//if (pr < Root->Count) pr = Root->Count;
-		Node* m = new Node(value, 1+rand() % pr);
-		Root = Merge(Merge(l, m), r);
-	} 
+		Node* m = new Node(value, 1 + rand() % pr);
+		if (Root->Priority <= m->Priority)
+		{
+			m->Count += Root->Count;
+			Split(Root, value, m->Left, m->Right);
+			Root = m;
+		}
+		else
+		{
+			Node* last = Root;
+			Node* cur = Root;
+			while (m->Priority <= last->Priority)
+			{
+				last->Count++;
+				if (value <= last->Key)
+				{
+					if (!last->Left || m->Priority > last->Left->Priority)
+					{
+						cur = last->Left;
+						last->Left = m;
+						break;
+					}
+					last = last->Left;
+				}
+				else if (value > last->Key)
+				{
+					if (!last->Right || m->Priority > last->Right->Priority)
+					{
+						cur = last->Right;
+						last->Right = m;
+						break;
+					}
+					last = last->Right;
+				}
+			}
+			if(cur) m->Count += cur->Count;
+			Split(cur, value, m->Left, m->Right);
+		}
+	}
 	else
 	{
-		Root = new Node(value, 1+ rand() % pr);
-		Root->Count = 1;
+		Root = new Node(value, 1 + rand() % pr);
 	}
 }
 
 void Treap::DeleteNode(int const value)
 {
-
-	if (UpdateCount(Root, value, -1))
+	Node* last = Root;
+	Node* cur = Root;
+	if (Root->Key == value)
 	{
-
-		/////////Find Parent//////////
-		Node* last = Root; //Parent
-		Node* cur = Root; 
-
-		if (Root->Key == value)
+		Root = Merge(cur->Left, cur->Right);
+		return;
+	}
+	while (value != last->Key && (last->Left || last->Right))
+	{
+		last->Count--;
+		if (value < last->Key)
 		{
-			Root = Merge(cur->Left, cur->Right);
-			return;
-		}
-
-		while (value != last->Key && (last->Left || last->Right))
-		{
-			if (value < last->Key)
+			if (last->Left && last->Left->Key == value)
 			{
-				if (last->Left && last->Left->Key == value)
-				{
-					cur = last->Left;
-					break;
-				}
-				last = last->Left;
+				cur = last->Left;
+				break;
 			}
-			else if (value > last->Key)
-			{
-				if (last->Right && last->Right->Key == value) 
-				{
-					cur = last->Right;
-					break;
-				}
-				last = last->Right;
-			}
+			last = last->Left;
 		}
-		/////////////////////////////
-
-		if (cur->Key == value)
+		else if (value > last->Key)
 		{
-			if (last->Left == cur)
-				last->Left = Merge(cur->Left, cur->Right);
-			else if (last->Right == cur)
-				last->Right = Merge(cur->Left, cur->Right);
-		}	
+			if (last->Right && last->Right->Key == value)
+			{
+				cur = last->Right;
+				break;
+			}
+			last = last->Right;
+		}
+	}
+	if (cur->Key == value)
+	{
+		if (last->Left == cur)
+			last->Left = Merge(cur->Left, cur->Right);
+		else if (last->Right == cur)
+			last->Right = Merge(cur->Left, cur->Right);
 	}
 }
 
@@ -240,16 +232,16 @@ int Treap::FindCount(int const value)const
 	size_t rcount = 0;
 	if (last->Right) rcount = last->Right->Count;
 
-	while ((last->Left || last->Right) && cur-1 != lcount)
+	while ((last->Left || last->Right) && cur - 1 != lcount)
 	{
-		if (cur-1 < lcount)
+		if (cur - 1 < lcount)
 			last = last->Left;
 		else if (cur <= last->Count && rcount)
 		{
 			last = last->Right;
-			cur -= (1+lcount);
+			cur -= (1 + lcount);
 		}
-    		//error case
+		//error case
 		else return -1;
 
 		lcount = 0;
@@ -266,13 +258,12 @@ bool Treap::Find(int const value)const
 	return (last && last->Key == value);
 }
 
-
 Treap::Node* Treap::FindMinN()const
 {
 	Node* cur = Root;
 	if (cur)
-	while (cur->Left != nullptr)
-		cur = cur->Left;
+		while (cur->Left != nullptr)
+			cur = cur->Left;
 	return cur;
 }
 
@@ -288,19 +279,25 @@ int Treap::FindMin()const
 	}
 }
 
-void Treap::DFS( void(*TakeValue)(const int value))const
+void Treap::DFS(void(*TakeValue)(const int value))const
 {
 	DFSN(Root, TakeValue);
 	std::cout << std::endl;
 	return;
 }
+
 void Treap::DFSN(Node* node, void(*TakeValue)(const int value))const
 {
 	if (!node) return;
-	DFSN(node->Left,TakeValue);
+	DFSN(node->Left, TakeValue);
 	TakeValue(node->Key);
-	DFSN(node->Right,TakeValue);
+	DFSN(node->Right, TakeValue);
 	return;
+}
+
+void PrintValue(const int value)
+{
+	std::cout << value << " ";
 }
 
 int main()
@@ -319,8 +316,9 @@ int main()
 			MyTreap.Insert(num);
 		else if (num < 0)
 			MyTreap.DeleteNode(-num);
-		std::cout << MyTreap.FindCount(k+1) << std::endl;
+		std::cout << MyTreap.FindCount(k + 1) << std::endl;
+		//MyTreap.DFS(PrintValue);
 	}
-	system("pause");
+	//system("pause");
 	return 0;
 }
