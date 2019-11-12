@@ -41,6 +41,7 @@ Treap::Treap() :
 
 Treap::~Treap()
 {
+	if (Root != nullptr) Root->~Node();
 }
 
 Treap::Node::Node(int _k, int _p) :
@@ -54,6 +55,8 @@ Treap::Node::Node(int _k, int _p) :
 
 Treap::Node::~Node()
 {
+	if (Left != nullptr) delete Left;
+	if (Right != nullptr) delete Right;
 }
 
 void Treap::Split(Node* node, int key,
