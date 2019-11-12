@@ -37,6 +37,8 @@ BinTree::BinTree() :
 
 BinTree::~BinTree()
 {
+	if(Root != nullptr)
+		Root->~Node();
 }
 
 BinTree::Node::Node(int _k) :
@@ -48,6 +50,8 @@ BinTree::Node::Node(int _k) :
 
 BinTree::Node::~Node()
 {
+	if (Left != nullptr) delete Left;
+	if (Right != nullptr) delete Right;
 }
 
 void BinTree::Insert(const int value)
