@@ -37,8 +37,28 @@ BinTree::BinTree() :
 
 BinTree::~BinTree()
 {
-	if(Root != nullptr)
-		Root->~Node();
+	if (Root != nullptr) 
+	{
+		std::stack<Node*> s;
+		Node* cur = Root;
+		s.push(cur);
+		while (!s.empty())
+		{
+			cur = s.top();
+			s.pop();
+			if (cur->Left)
+			{
+				s.push(cur->Left);
+				cur->Left = nullptr;
+			}
+			if (cur->Right)
+			{
+				s.push(cur->Right);
+				cur->Right = nullptr;
+			}
+			delete cur;
+		}
+	}
 }
 
 BinTree::Node::Node(int _k) :
