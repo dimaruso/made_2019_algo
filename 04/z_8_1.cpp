@@ -73,7 +73,8 @@ template<class T, class H>
 bool HashTable<T, H>::Add(const T& _key)
 {
 	// used 3/4 tables
-	if (4 * keysCount > placeCount * 3)
+	//if (4 * keysCount > Table.size() * 3)
+	if (4 * placeCount < Table.size())
 		growTable();
 	int hash = hasher(_key)% Table.size();
 	int lastdel = -1;
