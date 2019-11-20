@@ -73,8 +73,8 @@ template<class T, class H>
 bool HashTable<T, H>::Add(const T& _key)
 {
 	// used 3/4 tables
-	//if (4 * keysCount > Table.size() * 3)
-	if (4 * placeCount < Table.size())
+	if (4 * keysCount > Table.size() * 3)
+	//if (4 * placeCount < Table.size())
 		growTable();
 	int hash = hasher(_key)% Table.size();
 	int lastdel = -1;
@@ -83,7 +83,7 @@ bool HashTable<T, H>::Add(const T& _key)
 		if (lastdel == -1 && Table[j].Visited == 2) lastdel = j;
 
 		if (Table[j].Visited == 1 && Table[j].Key == _key)
-			break;
+			return false;
 		if (Table[j].Visited == 0) 
 		{
 			if (lastdel == -1)
@@ -101,6 +101,7 @@ bool HashTable<T, H>::Add(const T& _key)
 	{
 		Table[lastdel] = Node(_key);
 		++keysCount;
+		return true;
 	}
 	return false;
 }
