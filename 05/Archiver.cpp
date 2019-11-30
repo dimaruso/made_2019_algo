@@ -9,7 +9,9 @@
 #include <fstream>
 #include <ios>
 #include "Huffman.h"
-using namespace std;
+using std::vector;
+using std::string;
+
 size_t BytesToint(unsigned char* c)
 {
 	size_t r = 0;
@@ -106,11 +108,11 @@ struct Hasher {
 class BinTree
 {
 public:
-	BinTree(std::string s);
-	BinTree(std::string s, size_t _sizeTree);
+	BinTree(string s);
+	BinTree(string s, size_t _sizeTree);
 	~BinTree();
-	void CreateTable(std::string& s, OutBitStream& _out);
-	std::string DecodeS(std::string& s, const size_t& start, const size_t& end) const;
+	void CreateTable(string& s, OutBitStream& _out);
+	string DecodeS(string& s, const size_t& start, const size_t& end) const;
 	size_t size()
 	{
 		return CountNode;
@@ -124,8 +126,8 @@ private:
 	size_t CountNode;
 	size_t CountChar;
 	Node* Root;
-	std::unordered_map<unsigned char, std::string, Hasher> CodeTable;
-	void DFSN(Node* node, const std::string& s);
+	std::unordered_map<unsigned char, string, Hasher> CodeTable;
+	void DFSN(Node* node, const string& s);
 	void NewZipTree(Node *_cur, OutBitStream& _out);
 };
 ////////////////////////////////////////////////////////
@@ -185,7 +187,7 @@ BinTree::Node::~Node()
 {
 }
 
-BinTree::BinTree(std::string s, size_t _sizeTree):
+BinTree::BinTree(string s, size_t _sizeTree):
 	CountNode(_sizeTree)
 {
 	Node* cur;
@@ -218,7 +220,7 @@ BinTree::BinTree(std::string s, size_t _sizeTree):
 	Root = st.top();
 }
 
-BinTree::BinTree(std::string s) :
+BinTree::BinTree(string s) :
 	CountNode(0),
 	CountChar(0),
 	Root(nullptr)
@@ -226,7 +228,7 @@ BinTree::BinTree(std::string s) :
 	vector<Node> table;
 	//считаем частоты букв
 	vector<unsigned char> let;
-	map<unsigned char, Node> Freq;
+	std::map<unsigned char, Node> Freq;
 	int size = s.size();
 	int i = 0;
 	while (i < size) {
@@ -312,7 +314,7 @@ BinTree::~BinTree()
 	Root = nullptr;
 }
 
-void BinTree::DFSN(Node* node, const std::string& s)
+void BinTree::DFSN(Node* node, const string& s)
 {
 	if (!node->Left && !node->Right)
 	{
@@ -336,7 +338,7 @@ void BinTree::NewZipTree(Node *node, OutBitStream& _out)
 	_out.WriteBit('0');
 	return;
 }
-void BinTree::CreateTable(std::string& s, OutBitStream& _out)
+void BinTree::CreateTable(string& s, OutBitStream& _out)
 {
 	DFSN(Root, "");
 	NewZipTree(Root, _out);
@@ -350,10 +352,10 @@ void BinTree::CreateTable(std::string& s, OutBitStream& _out)
 	CountNode = sizetree;
 	return;
 }
-std::string BinTree::DecodeS(std::string& s, const size_t& start, const size_t& end) const
+string BinTree::DecodeS(string& s, const size_t& start, const size_t& end) const
 {
 	Node* cur = Root;
-	std::string res;
+	string res;
 	for (size_t i = start; i < end; ++i)
 	{
 		if (s[i] == '0') cur = cur->Left;
@@ -522,7 +524,7 @@ bool isEqual(const vector<byte>& v1, const vector<byte>& v2)
 }
 void readfile(const string& filename, vector<byte>& v1)
 {
-	ifstream file;
+	std::ifstream file;
 	file.open(filename.c_str());
 	byte value;
 	while (file >> value) {
@@ -540,7 +542,7 @@ int main()
 	readfile("input.txt", input);
 	readfile("result.txt",result);
 
-	cout << isEqual(input, result);
+	std::cout << isEqual(input, result);
 
 	system("pause");
 	return 0;
