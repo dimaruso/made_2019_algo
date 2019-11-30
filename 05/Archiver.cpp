@@ -5,6 +5,7 @@
 #include <stack>
 #include <algorithm>
 #include<unordered_map>
+#include<map>
 #include <fstream>
 #include <ios>
 #include "Huffman.h"
@@ -40,7 +41,7 @@ bool ReadBit(const unsigned char& bit, const int pos)
 	tmp |= 1 << (pos % 8);
 	return tmp == bit;
 }
-/////////////////////////////////////////////
+////////////////////////////////////////////////////////
 class OutBitStream {
 public:
 	OutBitStream();
@@ -92,9 +93,8 @@ uint64_t OutBitStream::GetBitsCountNode() const
 uint64_t OutBitStream::GetSize() const
 {
 	return buffer.size();
-	//return bitsCountNode % 8 ? bitsCountNode /8 : bitsCountNode / 8 + 1;
 }
-/////////////////////////////////////////////
+////////////////////////////////////////////////////////
 struct Hasher {
 	size_t operator()(const unsigned char& state) const 
 	{
@@ -102,13 +102,40 @@ struct Hasher {
 		return hash;
 	}
 };
-struct Node
+////////////////////////////////////////////////////////
+class BinTree
 {
-	unsigned char Letter;//значение байта (есть только у листа)
+public:
+	BinTree(std::string s);
+	BinTree(std::string s, size_t _sizeTree);
+	~BinTree();
+	void CreateTable(std::string& s, OutBitStream& _out);
+	std::string DecodeS(std::string& s, const size_t& start, const size_t& end) const;
+	size_t size()
+	{
+		return CountNode;
+	}
+	bool isEmpty()
+	{
+		return !CountNode;
+	}
+private:
+	struct Node;
+	size_t CountNode;
+	size_t CountChar;
+	Node* Root;
+	std::unordered_map<unsigned char, std::string, Hasher> CodeTable;
+	void DFSN(Node* node, const std::string& s);
+	void NewZipTree(Node *_cur, OutBitStream& _out);
+};
+////////////////////////////////////////////////////////
+struct BinTree::Node
+{
+	unsigned char Letter;//значение байта
 	int Key;//частота - ключ дял кучи
 	Node* Left;
 	Node* Right;
-	Node():
+	Node() :
 		Left(nullptr),
 		Right(nullptr)
 	{}
@@ -134,58 +161,30 @@ struct Node
 		return l.Key != r.Key;
 	}
 };
-Node::Node(const unsigned char& c) :
+BinTree::Node::Node(const unsigned char& c) :
 	Letter(c),
 	Key(1),
 	Left(nullptr),
 	Right(nullptr)
 {
 }
-Node::Node(const int& p) :
+BinTree::Node::Node(const int& p) :
 	Key(p),
 	Left(nullptr),
 	Right(nullptr)
 {
 }
-Node::Node(const Node& second) :
+BinTree::Node::Node(const Node& second) :
 	Letter(second.Letter),
 	Key(second.Key),
 	Left(second.Left),
 	Right(second.Right)
 {
 }
-Node::~Node()
+BinTree::Node::~Node()
 {
-	//if (Left != nullptr) delete Left;
-	//if (Right != nullptr) delete Right;
-	//Left = nullptr;
-	//Right = nullptr;
 }
-////////////////////////////////////////////////
-class BinTree
-{
-public:
-	BinTree(std::string s);
-	BinTree(std::string s, size_t _sizeTree);
-	~BinTree();
-	void CreateTable(std::string& s, OutBitStream& _out);
-	std::string DecodeS(std::string& s, const size_t& start, const size_t& end) const;
-	size_t size()
-	{
-		return CountNode;
-	}
-	bool isEmpty()
-	{
-		return !CountNode;
-	}
-private:
-	size_t CountNode;
-	size_t CountChar;
-	Node* Root;
-	std::unordered_map<unsigned char, std::string, Hasher> CodeTable;
-	void DFSN(Node* node, const std::string& s);
-	void NewZipTree(Node *_cur, OutBitStream& _out);
-};
+
 BinTree::BinTree(std::string s, size_t _sizeTree):
 	CountNode(_sizeTree)
 {
@@ -226,28 +225,26 @@ BinTree::BinTree(std::string s) :
 {
 	vector<Node> table;
 	//считаем частоты букв
-
-	for (size_t i = 0, tmp; i < s.size(); ++i)
-	{
-		tmp = 1;
-
-		for (size_t j = 0; j < table.size(); ++j)
+	vector<unsigned char> let;
+	map<unsigned char, Node> Freq;
+	int size = s.size();
+	int i = 0;
+	while (i < size) {
+		if (Freq.find(s[i]) == Freq.cend())
 		{
-			if (s[i] == table[j].Letter)
-			{
-				++table[j].Key;
-				tmp = 0;
-				break;
-			}
+			let.push_back(s[i]);
+			Freq[s[i]] = Node((unsigned char)s[i]);
+
 		}
-		if (tmp)
-		{
-			table.push_back(Node((unsigned char)s[i]));
-			++CountChar;
-		}
+		else
+			++Freq[s[i]].Key;
+		++i;
 	}
+	for (size_t i = 0; i < let.size(); ++i)
+		table.push_back(Freq[let[i]]);
+
 	std::make_heap(table.begin(), table.end());
-	//////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////
 	while (!table.empty())
 	{
 		Node* l = new Node(table.front());
@@ -353,7 +350,6 @@ void BinTree::CreateTable(std::string& s, OutBitStream& _out)
 	CountNode = sizetree;
 	return;
 }
-
 std::string BinTree::DecodeS(std::string& s, const size_t& start, const size_t& end) const
 {
 	Node* cur = Root;
@@ -371,11 +367,19 @@ std::string BinTree::DecodeS(std::string& s, const size_t& start, const size_t& 
 	return res;
 }
 
+static void copyStream(IInputStream& input, IOutputStream& output)
+{
+	byte value;
+	while (input.Read(value))
+	{
+		output.Write(value);
+	}
+}
+
 void Encode(IInputStream& original, IOutputStream& compressed)
 {
 	string s;
 	byte value;
-
 	while (original.Read(value))
 		s.push_back(value);
 
@@ -389,6 +393,19 @@ void Encode(IInputStream& original, IOutputStream& compressed)
 	size_t sizecode = test.GetBitsCountNode()-sizetree;
 	unsigned char* csizecode = intToBytes(sizecode);
 
+	if (s.size() < test.GetSize())
+	{
+		value = 255;
+		compressed.Write(value);
+		size_t i = 0;
+		while (i < s.size())
+		{
+			value = s[i];
+			compressed.Write(value);
+			++i;
+		}
+		return;
+	}
 	for (size_t i = 0; i < sizeof(size_t); ++i)
 		compressed.Write(csizetree[i]);
 	for (size_t i = 0; i < sizeof(size_t); ++i)
@@ -409,6 +426,13 @@ void Decode(IInputStream& compressed, IOutputStream& original)
 	while (j < sizeof(size_t))
 	{
 		compressed.Read(value);
+		if(j == 0 && value == 255)
+		{
+			compressed.Read(value);
+			original.Write(value);
+			copyStream(compressed, original);
+			return;
+		}
 		i[0] = value;
 		++i;
 		++j;
@@ -450,14 +474,15 @@ void Decode(IInputStream& compressed, IOutputStream& original)
 		original.Write(result[jojo]);
 	}
 }
-//////////////////////////////////////
+////////////////////////////////////////////////////////
 void CreateTest()
 {
 	std::ofstream original("input.txt", std::ios::binary);
-	original << "abracadabra";
+	original << "abracadabra\tada";
 }
-void test1()
+void testEncode()
 {
+
 	string inp = "input.txt";
 	string comp = "zipfile";
 	string res = "result.txt";
@@ -469,7 +494,7 @@ void test1()
 
 	Encode(inps, ocomp);
 }
-void test2()
+void testDecode()
 {
 	string inp = "input.txt";
 	string comp = "zipfile";
@@ -482,11 +507,41 @@ void test2()
 
 	Decode(icomp, ores);
 }
+
+bool isEqual(const vector<byte>& v1, const vector<byte>& v2)
+{
+	if (v1.size() != v2.size()) {
+		return false;
+	}
+	for (unsigned int i = 0; i < v1.size(); i++) {
+		if (v1[i] != v2[i]) {
+			return false;
+		}
+	}
+	return true;
+}
+void readfile(const string& filename, vector<byte>& v1)
+{
+	ifstream file;
+	file.open(filename.c_str());
+	byte value;
+	while (file >> value) {
+		v1.push_back(value);
+	}
+}
 int main()
 {
 	CreateTest();
-	test1();
-	test2();
+	testEncode();
+	testDecode();
+	
+	vector<byte> input;
+	vector<byte> result;
+	readfile("input.txt", input);
+	readfile("result.txt",result);
+
+	cout << isEqual(input, result);
+
 	system("pause");
 	return 0;
 }
