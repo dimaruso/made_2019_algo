@@ -14,8 +14,7 @@ class MyGraf
 public:
 	MyGraf(const size_t& _V, const size_t& _E, std::ifstream& _in);
 	~MyGraf();
-	void find_bridges(void(*TakeBridge)(const vector<size_t>& res));
-	vector<size_t> NumOfE;
+	void find_bridges(void(*TakeBridge)(const vector<size_t>& res));	
 private:
 	struct V_Num
 	{
@@ -28,12 +27,12 @@ private:
 	};
 	size_t E, V;
 	vector<list<V_Num>> G;
-	vector<bool> visited;
 	size_t timer;
+	vector<bool> visited;
 	vector<size_t> timeIN;
 	vector<size_t> timeRIN;
+	vector<size_t> NumOfE;
 	void DFS(V_Num v, int p = -1);
-
 };
 
 MyGraf::MyGraf(const size_t& _V, const size_t& _E, std::ifstream& _in) :
