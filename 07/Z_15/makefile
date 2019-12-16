@@ -27,4 +27,4 @@ run : Salesman
 	./ Salesman
 
 clean :
-  rm - rf * .o Salesman
+	rm - rf * .o Salesman
