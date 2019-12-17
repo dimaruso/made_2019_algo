@@ -1,0 +1,54 @@
+N = 2
+Mean 2*MST = 4.58442
+Mean true solution = 4.58442
+Mean quality approach = 1
+Standard Deviation quality approach = 0
+
+N = 3
+Mean 2*MST = 6.40902
+Mean true solution = 5.88876
+Mean quality approach = 0.922803
+Standard Deviation quality approach = 0.0819781
+
+N = 4
+Mean 2*MST = 9.18184
+Mean true solution = 7.75672
+Mean quality approach = 0.853416
+Standard Deviation quality approach = 0.0596558
+
+N = 5
+Mean 2*MST = 11.558
+Mean true solution = 9.23124
+Mean quality approach = 0.804732
+Standard Deviation quality approach = 0.0765912
+
+N = 6
+Mean 2*MST = 13.2151
+Mean true solution = 9.89774
+Mean quality approach = 0.750587
+Standard Deviation quality approach = 0.0459848
+
+N = 7
+Mean 2*MST = 12.9783
+Mean true solution = 9.51807
+Mean quality approach = 0.742861
+Standard Deviation quality approach = 0.075935
+
+N = 8
+Mean 2*MST = 12.9021
+Mean true solution = 9.39727
+Mean quality approach = 0.734038
+Standard Deviation quality approach = 0.0627563
+
+N = 9
+Mean 2*MST = 16.6277
+Mean true solution = 11.8758
+Mean quality approach = 0.714714
+Standard Deviation quality approach = 0.0373286
+
+N = 10
+Mean 2*MST = 18.6605
+Mean true solution = 12.704
+Mean quality approach = 0.692081
+Standard Deviation quality approach = 0.0854357
+
