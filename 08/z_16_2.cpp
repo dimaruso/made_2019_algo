@@ -38,7 +38,7 @@ int main()
 		s += text;
 	}
 	auto res = ZFunc(s);
-	for (size_t i = 0; i < res.size(); ++i)
+	for (size_t i = p + 1; i < res.size(); ++i)
 		if(res[i] == p)
 			std::cout << i - p - 1 << ' ';
 	return 0;
